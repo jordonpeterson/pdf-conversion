@@ -167,6 +167,8 @@ npm test
 - `npm run build` - Build for production
 - `npm test` - Run Puppeteer tests
 - `npm run preview` - Preview production build
+- `npm run typecheck` - Run TypeScript type checking
+- `npm run lint` - Run ESLint code linting
 
 ### Database Migrations
 
@@ -186,6 +188,21 @@ The app includes a `processPDF` stub function in `src/lib/supabase.js` that:
 1. Replace the `processPDF` function with your logic
 2. Consider using Supabase Edge Functions for server-side processing
 3. Update the status appropriately based on success/failure
+
+### Continuous Integration
+
+The project includes a GitHub Actions CI pipeline that runs on every push and pull request:
+
+- **Type Check Job**: Runs TypeScript type checking and ESLint
+- **Test Job**: Builds the app, starts it, and runs Puppeteer tests
+- **Build Job**: Creates production build and uploads artifacts
+
+**CI Pipeline Features:**
+- Runs on Node.js 18
+- Uses npm cache for faster builds
+- Installs Puppeteer dependencies for headless testing
+- Uses mock Supabase credentials for builds
+- Uploads build artifacts for download
 
 ## Security Features
 

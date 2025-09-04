@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 
-const APP_URL = 'http://localhost:5173'; // Vite default port
+const APP_URL = process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173'; // Preview port in CI, dev port locally
 
 async function runTests() {
   console.log('🧪 Starting Puppeteer Tests...\n');
@@ -10,9 +10,13 @@ async function runTests() {
   let failed = 0;
   
   try {
+    const puppeteerArgs = process.env.PUPPETEER_ARGS ? 
+      process.env.PUPPETEER_ARGS.split(' ') : 
+      ['--no-sandbox', '--disable-setuid-sandbox'];
+      
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: puppeteerArgs
     });
     
     const page = await browser.newPage();
