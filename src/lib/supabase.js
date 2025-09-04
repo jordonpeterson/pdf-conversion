@@ -95,7 +95,10 @@ export function subscribeToTable(tableName, callback) {
 
 // Storage functions for PDF upload
 export async function uploadPDF(file, userId) {
+  console.log('Starting upload for:', file.name, 'Size:', file.size, 'Type:', file.type)
+  
   const fileName = `${userId}/${Date.now()}_${file.name}`
+  console.log('Upload path:', fileName)
   
   const { data, error } = await supabase.storage
     .from('pdfs')
@@ -104,7 +107,12 @@ export async function uploadPDF(file, userId) {
       upsert: false
     })
   
-  if (error) return { error }
+  if (error) {
+    console.error('Storage upload error:', error)
+    return { error }
+  }
+  
+  console.log('Storage upload success:', data)
   
   // Save file metadata to database
   const { data: fileRecord, error: dbError } = await supabase
@@ -119,7 +127,12 @@ export async function uploadPDF(file, userId) {
     .select()
     .single()
   
-  if (dbError) return { error: dbError }
+  if (dbError) {
+    console.error('Database insert error:', dbError)
+    return { error: dbError }
+  }
+  
+  console.log('Database insert success:', fileRecord)
   
   // Call processPDF stub
   processPDF(fileRecord.id)
