@@ -1,14 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, DragEvent, ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getCurrentUser, signOut, uploadPDF, getUserPDFs } from '../lib/supabase'
+import { getCurrentUser, signOut, uploadPDF, getUserPDFs } from '../lib/supabase.ts'
+import { User } from '@supabase/supabase-js'
+
+interface PDFRecord {
+  id: string
+  file_name: string
+  file_path: string
+  file_size: number
+  user_id: string
+  status: string
+  created_at: string
+}
 
 function Home() {
-  const [user, setUser] = useState(null)
-  const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState(null)
-  const [uploadSuccess, setUploadSuccess] = useState(false)
-  const [userPDFs, setUserPDFs] = useState([])
-  const [dragActive, setDragActive] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [uploading, setUploading] = useState<boolean>(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [uploadSuccess, setUploadSuccess] = useState<boolean>(false)
+  const [userPDFs, setUserPDFs] = useState<PDFRecord[]>([])
+  const [dragActive, setDragActive] = useState<boolean>(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -21,29 +32,29 @@ function Home() {
     }
   }, [user])
 
-  async function loadUser() {
+  async function loadUser(): Promise<void> {
     const { user, error } = await getCurrentUser()
     if (!error && user) {
       setUser(user)
     }
   }
 
-  async function loadUserPDFs() {
+  async function loadUserPDFs(): Promise<void> {
     if (!user) return
     const { data, error } = await getUserPDFs(user.id)
     if (!error && data) {
-      setUserPDFs(data)
+      setUserPDFs(data as PDFRecord[])
     }
   }
 
-  async function handleSignOut() {
+  async function handleSignOut(): Promise<void> {
     const { error } = await signOut()
     if (!error) {
       navigate('/login')
     }
   }
 
-  const handleDrag = (e) => {
+  const handleDrag = (e: DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
     e.stopPropagation()
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -53,7 +64,7 @@ function Home() {
     }
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>): void => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
@@ -63,13 +74,13 @@ function Home() {
     }
   }
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files && e.target.files[0]) {
       handleFileUpload(e.target.files[0])
     }
   }
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (file: File): Promise<void> => {
     // Validate file type
     if (file.type !== 'application/pdf') {
       setUploadError('Please upload only PDF files')
@@ -87,6 +98,7 @@ function Home() {
     setUploadSuccess(false)
 
     try {
+      if (!user) return
       const { data, error } = await uploadPDF(file, user.id)
       
       if (error) throw error
@@ -96,14 +108,14 @@ function Home() {
       
       // Reload PDFs list
       loadUserPDFs()
-    } catch (error) {
+    } catch (error: any) {
       setUploadError(error.message || 'Failed to upload PDF')
     } finally {
       setUploading(false)
     }
   }
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string): string => {
     switch (status) {
       case 'pending': return '#ffa500'
       case 'processing': return '#3498db'

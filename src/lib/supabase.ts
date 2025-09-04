@@ -1,7 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, User } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables. Please check your .env.local file.')
@@ -12,7 +12,7 @@ export const supabase = createClient(
   supabaseAnonKey || ''
 )
 
-export async function signIn(email, password) {
+export async function signIn(email: string, password: string): Promise<{ data: any, error: any }> {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -20,7 +20,7 @@ export async function signIn(email, password) {
   return { data, error }
 }
 
-export async function signUp(email, password) {
+export async function signUp(email: string, password: string): Promise<{ data: any, error: any }> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -28,17 +28,24 @@ export async function signUp(email, password) {
   return { data, error }
 }
 
-export async function signOut() {
+export async function signOut(): Promise<{ error: any }> {
   const { error } = await supabase.auth.signOut()
   return { error }
 }
 
-export async function getCurrentUser() {
+export async function getCurrentUser(): Promise<{ user: User | null, error: any }> {
   const { data: { user }, error } = await supabase.auth.getUser()
   return { user, error }
 }
 
-export async function fetchTable(tableName, options = {}) {
+interface TableOptions {
+  select?: string
+  filter?: Record<string, any>
+  order?: { column: string, ascending?: boolean }
+  limit?: number
+}
+
+export async function fetchTable(tableName: string, options: TableOptions = {}): Promise<{ data: any, error: any }> {
   let query = supabase.from(tableName).select(options.select || '*')
   
   if (options.filter) {
@@ -59,7 +66,7 @@ export async function fetchTable(tableName, options = {}) {
   return { data, error }
 }
 
-export async function insertRecord(tableName, record) {
+export async function insertRecord(tableName: string, record: any): Promise<{ data: any, error: any }> {
   const { data, error } = await supabase
     .from(tableName)
     .insert(record)
@@ -67,7 +74,7 @@ export async function insertRecord(tableName, record) {
   return { data, error }
 }
 
-export async function updateRecord(tableName, id, updates) {
+export async function updateRecord(tableName: string, id: string, updates: any): Promise<{ data: any, error: any }> {
   const { data, error } = await supabase
     .from(tableName)
     .update(updates)
@@ -76,7 +83,7 @@ export async function updateRecord(tableName, id, updates) {
   return { data, error }
 }
 
-export async function deleteRecord(tableName, id) {
+export async function deleteRecord(tableName: string, id: string): Promise<{ error: any }> {
   const { error } = await supabase
     .from(tableName)
     .delete()
@@ -84,7 +91,7 @@ export async function deleteRecord(tableName, id) {
   return { error }
 }
 
-export function subscribeToTable(tableName, callback) {
+export function subscribeToTable(tableName: string, callback: any): any {
   const subscription = supabase
     .channel(`public:${tableName}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, callback)
@@ -94,7 +101,7 @@ export function subscribeToTable(tableName, callback) {
 }
 
 // Storage functions for PDF upload
-export async function uploadPDF(file, userId) {
+export async function uploadPDF(file: File, userId: string): Promise<{ data?: any, error?: any }> {
   console.log('Starting upload for:', file.name, 'Size:', file.size, 'Type:', file.type)
   
   const fileName = `${userId}/${Date.now()}_${file.name}`
@@ -141,7 +148,7 @@ export async function uploadPDF(file, userId) {
 }
 
 // Stub function for PDF processing
-export async function processPDF(fileId) {
+export async function processPDF(fileId: string): Promise<void> {
   // This is a stub function that will be implemented later
   // For now, it just updates the status to 'processing' then 'completed'
   console.log(`Processing PDF with ID: ${fileId}`)
@@ -163,7 +170,7 @@ export async function processPDF(fileId) {
 }
 
 // Get user's uploaded PDFs
-export async function getUserPDFs(userId) {
+export async function getUserPDFs(userId: string): Promise<{ data: any, error: any }> {
   const { data, error } = await supabase
     .from('uploaded_pdfs')
     .select('*')

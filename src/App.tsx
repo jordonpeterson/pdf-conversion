@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Login from './components/Login'
-import ProtectedRoute from './components/ProtectedRoute'
-import Home from './pages/Home'
+import Login from './components/Login.tsx'
+import ProtectedRoute from './components/ProtectedRoute.tsx'
+import Home from './pages/Home.tsx'
 import './App.css'
 
 function App() {

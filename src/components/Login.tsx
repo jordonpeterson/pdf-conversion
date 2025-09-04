@@ -1,16 +1,16 @@
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { signIn, signUp } from '../lib/supabase'
+import { signIn, signUp } from '../lib/supabase.ts'
 
 function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [email, setEmail] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [isSignUp, setIsSignUp] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
@@ -28,8 +28,8 @@ function Login() {
       } else {
         navigate('/')
       }
-    } catch (error) {
-      setError(error.message)
+    } catch (error: any) {
+      setError(error.message || 'An error occurred')
       setLoading(false)
     }
   }
@@ -58,7 +58,7 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength="6"
+              minLength={6}
               disabled={loading}
             />
           </div>
