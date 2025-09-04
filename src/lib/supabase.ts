@@ -147,26 +147,23 @@ export async function uploadPDF(file: File, userId: string): Promise<{ data?: an
   return { data: fileRecord, error: null }
 }
 
-// Stub function for PDF processing
+// Trigger PDF processing via edge function
 export async function processPDF(fileId: string): Promise<void> {
-  // This is a stub function that will be implemented later
-  // For now, it just updates the status to 'processing' then 'completed'
-  console.log(`Processing PDF with ID: ${fileId}`)
+  console.log(`Triggering PDF processing for ID: ${fileId}`)
   
-  // Update status to processing
-  await supabase
-    .from('uploaded_pdfs')
-    .update({ status: 'processing' })
-    .eq('id', fileId)
-  
-  // Simulate async processing
-  setTimeout(async () => {
-    await supabase
-      .from('uploaded_pdfs')
-      .update({ status: 'completed' })
-      .eq('id', fileId)
-    console.log(`PDF processing completed for ID: ${fileId}`)
-  }, 3000)
+  try {
+    const { data, error } = await supabase.functions.invoke('process-pdf', {
+      body: { fileId }
+    })
+    
+    if (error) {
+      console.error('Error invoking PDF processing function:', error)
+    } else {
+      console.log('PDF processing function invoked successfully:', data)
+    }
+  } catch (error) {
+    console.error('Error calling edge function:', error)
+  }
 }
 
 // Get user's uploaded PDFs
