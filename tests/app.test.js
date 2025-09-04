@@ -144,6 +144,7 @@ describe('PDF Upload App Tests', () => {
 });
 
 // Helper function to test authenticated features (requires valid Supabase setup)
+// eslint-disable-next-line no-unused-vars
 async function testWithAuth(page, email, password) {
   await page.goto(`${APP_URL}/login`, { waitUntil: 'networkidle0' });
   await page.type('input[type="email"]', email);
@@ -151,5 +152,3 @@ async function testWithAuth(page, email, password) {
   await page.click('button[type="submit"]');
   await page.waitForNavigation({ waitUntil: 'networkidle0' });
 }
-
-export default describe;

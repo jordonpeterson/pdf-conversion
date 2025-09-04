@@ -179,9 +179,10 @@ async function runTests() {
 // Check if server is running
 async function checkServer() {
   try {
+    // eslint-disable-next-line no-unused-vars
     const response = await fetch(APP_URL);
     return true;
-  } catch (error) {
+  } catch {
     console.error('❌ Error: Development server is not running!');
     console.error('Please run "npm run dev" in another terminal first.\n');
     return false;
