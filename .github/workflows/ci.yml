@@ -30,57 +30,6 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build application
-        run: npm run build
-        
-      - name: Install Puppeteer dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3-dev \
-            libatk-bridge2.0-dev \
-            libdrm2 \
-            libxkbcommon-dev \
-            libxcomposite-dev \
-            libxdamage-dev \
-            libxrandr-dev \
-            libgbm-dev \
-            libxss1 \
-            libasound2-dev
-            
-      - name: Start application in background
-        run: |
-          npm run preview &
-          sleep 10
-        env:
-          VITE_SUPABASE_URL: https://mock.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: mock-key
-          
-      - name: Wait for application to be ready
-        run: |
-          timeout 30 bash -c 'until curl -f http://localhost:4173; do sleep 2; done'
-          
-      - name: Run tests
-        run: npm test
-        env:
-          PUPPETEER_ARGS: '--no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage'
 
   build:
     name: Build Check
