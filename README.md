@@ -112,7 +112,19 @@ CREATE POLICY "Users can update own PDFs" ON uploaded_pdfs
    - **File size limit**: 10MB
    - **Allowed MIME types**: `application/pdf`
 
-### 6. Run the Application
+### 6. Deploy Edge Functions
+
+Deploy the PDF processing edge function:
+
+```bash
+# Deploy the process-pdf edge function
+supabase functions deploy process-pdf
+
+# Or deploy all functions
+supabase functions deploy
+```
+
+### 7. Run the Application
 
 ```bash
 npm run dev
@@ -120,7 +132,7 @@ npm run dev
 
 The app will be available at `http://localhost:5173`
 
-### 7. Test the Application
+### 8. Test the Application
 
 ```bash
 # Run automated tests
@@ -179,15 +191,21 @@ The project includes Supabase migrations in `supabase/migrations/`. These automa
 
 ### PDF Processing
 
-The app includes a `processPDF` stub function in `src/lib/supabase.js` that:
-- Updates status to "processing"
-- Simulates async work (3 seconds)
-- Updates status to "completed"
+The app uses a Supabase Edge Function for PDF processing:
+- Located at `supabase/functions/process-pdf/index.ts`
+- Called automatically after PDF upload
+- Updates status: "pending" → "processing" → "completed"/"failed"
 
-**To implement custom processing:**
-1. Replace the `processPDF` function with your logic
-2. Consider using Supabase Edge Functions for server-side processing
-3. Update the status appropriately based on success/failure
+**The edge function:**
+1. Receives a `fileId` parameter
+2. Updates the database record status to "processing"
+3. Performs PDF processing (currently simulated with a 3-second delay)
+4. Updates status to "completed" when finished
+
+**To customize processing:**
+1. Edit `supabase/functions/process-pdf/index.ts`
+2. Deploy with `supabase functions deploy process-pdf`
+3. The function has access to Supabase service role for database updates
 
 ### Continuous Integration
 
