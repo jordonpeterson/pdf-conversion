@@ -59,7 +59,7 @@ npm install
 #### Option A: Using Supabase CLI (Recommended)
 ```bash
 # Install Supabase CLI if not already installed
-npm install -g supabase
+npm install supabase
 
 # Login to Supabase CLI
 supabase login
